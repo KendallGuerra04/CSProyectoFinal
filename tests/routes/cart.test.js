@@ -26,9 +26,67 @@ describe('Cart Routes', () => {
     await Category.destroy({ where: {} });
   });
 
+  describe('GET /api/carts/:cartId/items', () => {
+    it('should return error message', async () => {
+      const cartId = -1;
+      const response = await request(app)
+        .get(`/api/carts/${cartId}/items`)
+        .expect(400);
+      expect(response.body).toHaveProperty('error');
+    });
+  });
+
+  describe('GET /api/carts/:cartId/items', () => {
+    it('should return cart empty', async () => {
+      const cartId = 2;
+      const summary = {
+        subtotal: 0,
+        totalTax: 0,
+        total: 0,
+      }
+      const response = await request(app)
+        .get(`/api/carts/${cartId}/items`)
+        .expect(200);
+      expect(response.body).toHaveProperty('items');
+      expect(response.body.items).toBeInstanceOf(Array);
+      expect(response.body.items).toEqual([]);
+
+      expect(response.body).toHaveProperty('summary');
+      expect(response.body.summary).toEqual(summary);
+    });
+  });
+
+  describe('GET /api/carts/:cartId/items', () => {
+    it('should return cart items with totals', async () => {
+      const cartId = 1;
+      const response = await request(app)
+        .get(`/api/carts/${cartId}/items`)
+        .expect(200);
+      expect(response.body.items).toBeInstanceOf(Array);
+      expect(response.body.summary).toHaveProperty('subtotal');
+      expect(response.body.summary).toHaveProperty('totalTax');
+      expect(response.body.summary).toHaveProperty('total');
+    });
+  });
+
   describe('POST /api/carts/:userId', () => {
     it('should create a new cart', async () => {
+      const userId = 1;
+      const response = await request(app)
+        .post(`/api/carts/${userId}`)
+        .expect(201);
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toHaveProperty('userId', userId.toString());
+    });
+  });
 
+  describe('POST /api/carts/:userId', () => {
+    it('should return error message', async () => {
+      const userId = -1;
+      const response = await request(app)
+        .post(`/api/carts/${userId}`)
+        .expect(400);
+      expect(response.body).toHaveProperty('error');
     });
   });
 
@@ -52,7 +110,13 @@ describe('Cart Routes', () => {
 
   });
 
-  describe('GET /api/carts/:cartId/items', () => {
+  describe('PUT /api/carts/:cartId/items/:itemId', () => {
+    it('should return cart items with totals', async () => {
+
+    });
+  });
+
+  describe('DELETE /api/carts/:cartId/items/:itemId', () => {
     it('should return cart items with totals', async () => {
 
     });

@@ -12,7 +12,7 @@ class CartService {
     if (!product) {
       throw new Error('Product not found');
     }
-    
+
     if (product.inventory < quantity) {
       throw new Error('Not enough inventory available');
     }
@@ -47,7 +47,7 @@ class CartService {
     const itemsWithTotals = items.map(item => {
       const itemSubtotal = item.quantity * item.Product.price;
       const itemTax = itemSubtotal * item.Product.taxRate;
-      
+
       subtotal += itemSubtotal;
       totalTax += itemTax;
 
@@ -72,7 +72,7 @@ class CartService {
     const cartItem = await CartItem.findByPk(itemId, {
       include: Product
     });
-    
+
     if (!cartItem) {
       throw new Error('Item not found');
     }

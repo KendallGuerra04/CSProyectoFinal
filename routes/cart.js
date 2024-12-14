@@ -5,10 +5,12 @@ const router = express.Router();
 // Create a new cart for a user
 router.post('/:userId', async (req, res) => {
   try {
-    const cart = await CartService.createCart(req.params.userId);
-    res.status(201).json(cart);
+    const userId = req.params.userId;
+    if (userId <= 0) { return res.status(400).json({ error: "No se ha seleccionado algún usuario" }) }
+    const cart = await CartService.createCart(userId);
+    return res.status(201).json(cart);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -26,10 +28,12 @@ router.post('/:cartId/items', async (req, res) => {
 // Get all items in a cart
 router.get('/:cartId/items', async (req, res) => {
   try {
+    const cartId = req.params.cartId;
+    if (cartId <= 0) { return res.status(400).json({ error: "No se ha seleccionado algún carrito" }) }
     const items = await CartService.getCartItems(req.params.cartId);
-    res.json(items);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.json(items);
+  } catch (errors) {
+    return res.status(400).json({ error: errors.message });
   }
 });
 
