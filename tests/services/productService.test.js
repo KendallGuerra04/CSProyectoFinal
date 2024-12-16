@@ -27,7 +27,16 @@ describe('ProductService', () => {
 
     describe('getAllProducts', () => {
         it('should return all products', async () => {
+            const mockProducts = [
+                { id: 1, name: 'Product 1', inventory: 10 },
+                { id: 2, name: 'Product 2', inventory: 15 },
+            ];
+            Product.findAll.mockResolvedValue(mockProducts);
 
+            const products = await ProductService.getAllProducts();
+
+            expect(Product.findAll).toHaveBeenCalledTimes(1);
+            expect(products).toEqual(mockProducts);
         });
     });
 
