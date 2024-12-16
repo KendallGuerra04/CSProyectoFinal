@@ -203,7 +203,7 @@ describe('Product Routes', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('res is not defined'); //Dependiendo del error que se maneje
+      expect(response.body.error).toBe('Categories parameter is required'); //Dependiendo del error que se maneje
     });
   });
 
