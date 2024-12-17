@@ -4,6 +4,9 @@ const Product = require('../models/product');
 
 class CartService {
   static async createCart(userId) {
+    if (userId <= 0) {
+      throw new Error('The user doesnt exits');
+    }
     return await Cart.create({ userId });
   }
 
@@ -36,6 +39,12 @@ class CartService {
   }
 
   static async getCartItems(cartId) {
+
+    const cart = await Cart.findByPk(cartId);
+    if (!cart) {
+      throw new Error('Item not found');
+    }
+
     const items = await CartItem.findAll({
       where: { cartId },
       include: Product,

@@ -6,7 +6,6 @@ const router = express.Router();
 router.post('/:userId', async (req, res) => {
   try {
     const userId = req.params.userId;
-    if (userId <= 0) { return res.status(400).json({ error: "No se ha seleccionado algún usuario" }) }
     const cart = await CartService.createCart(userId);
     return res.status(201).json(cart);
   } catch (error) {
@@ -28,8 +27,6 @@ router.post('/:cartId/items', async (req, res) => {
 // Get all items in a cart
 router.get('/:cartId/items', async (req, res) => {
   try {
-    const cartId = req.params.cartId;
-    if (cartId <= 0) { return res.status(400).json({ error: "No se ha seleccionado algún carrito" }) }
     const items = await CartService.getCartItems(req.params.cartId);
     return res.json(items);
   } catch (errors) {
