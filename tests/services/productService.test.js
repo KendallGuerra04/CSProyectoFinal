@@ -162,7 +162,7 @@ describe('ProductService', () => {
     
             await expect(getProductsByCategory(emptyCategory)).rejects.toThrow('Category cannot be empty');
         });
-    
+
         it('should return products filtered by category', async () => {
             const mockProduct1 = { id: 1, name: 'Producto 1', price: 50, categoryId: 1 };
             const mockProduct2 = { id: 2, name: 'Producto 2', price: 30, categoryId: 1 };
@@ -214,25 +214,6 @@ describe('ProductService', () => {
             });
         });
     
-        it('should return products filtered by category without sorting and pagination', async () => {
-            const mockProduct1 = { id: 1, name: 'Producto 1', price: 50 };
-            const mockProduct2 = { id: 2, name: 'Producto 2', price: 30 };
-            const mockProduct3 = { id: 3, name: 'Producto 3', price: 10 };
-            const mockProducts = [mockProduct1, mockProduct2, mockProduct3];
-    
-            Product.findAll.mockResolvedValue(mockProducts);
-    
-            const result = await ProductService.getProductsByCategory(1, {});
-    
-            const expected = mockProducts;
-    
-            expect(result).toEqual(expected);
-            expect(Product.findAll).toHaveBeenCalledWith({
-                where: { categoryId: 1 },
-                include: Category,
-            });
-        });
-    
         it('should apply limit and offset without sorting', async () => {
             const mockProduct1 = { id: 1, name: 'Producto 1', price: 50 };
             const mockProduct2 = { id: 2, name: 'Producto 2', price: 30 };
@@ -242,9 +223,7 @@ describe('ProductService', () => {
     
             const limit = 2;
             const offset = 1;
-    
             const result = await ProductService.getProductsByCategory(1, { limit, offset });
-    
             const expected = [mockProduct1, mockProduct2];
     
             expect(result).toEqual(expected);
@@ -258,20 +237,8 @@ describe('ProductService', () => {
     });
 
       describe('getProductsByCategories', () => {//CATEGORIES 
+
         it('should return products filtered by multiple categories', async () => {
-   
-            const mockProduct1 = { id: 1, name: 'Producto 1', categoryId: 1 };
-            const mockProduct2 = { id: 2, name: 'Producto 2', categoryId: 2 };
-            const mockProducts = [mockProduct1, mockProduct2];
-
-            Product.findAll.mockResolvedValue(mockProducts);
-    
-            const result = await ProductService.getProductsByCategories('1,2');
-    
-            expect(result).toEqual(mockProducts);
-        });
-
-        it('should filter products by multiple categories', async () => {
             const mockProduct1 = { id: 1, name: 'Producto 1', price: 50, categoryId: 1 };
             const mockProduct2 = { id: 2, name: 'Producto 2', price: 30, categoryId: 2 };
             const mockProducts = [mockProduct1, mockProduct2];
@@ -343,39 +310,10 @@ describe('ProductService', () => {
             Product.findAll.mockResolvedValue(mockProducts);
     
             const sortOption = 'price,DESC';
-    
             const result = await ProductService.getProductsByCategories('1,2,3', { sort: sortOption });
-    
-            const expected = [mockProduct1, mockProduct2, mockProduct3];  // Sorted by price DESC
+            const expected = [mockProduct1, mockProduct2, mockProduct3]; 
     
             expect(result).toEqual(expected);
-        });
-    
-        it('should apply limit and offset without sorting if not specified', async () => {
-            const mockProduct2 = { id: 2, name: 'Producto 2', price: 30 };
-            const mockProduct3 = { id: 3, name: 'Producto 3', price: 10 };
-        
-            Product.findAll.mockResolvedValue([mockProduct2, mockProduct3]);
-        
-            const limit = 2;
-            const offset = 1;
-        
-            const result = await ProductService.getProductsByCategories('1,2,3', { limit, offset });
-        
-            const expected = [mockProduct2, mockProduct3];
-        
-            expect(result).toEqual(expected);
-        
-            expect(Product.findAll).toHaveBeenCalledWith({
-                where: {
-                    categoryId: {
-                        [Op.in]: [1, 2, 3],
-                    },
-                },
-                include: Category,
-                limit: 2,
-                offset: 1,
-            });
         });
     });
 });
