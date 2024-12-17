@@ -37,40 +37,15 @@ class ProductService {
         return await Product.destroy({ where: { id } });
     }
 
-    static async getProductsByCategory(categoryId, options = {}) {
-        const { sort, limit, offset } = options;
-        
-        const queryOptions = {
-            where: { categoryId },
-            include: Category,
-        };
-
-        // Add sorting if specified
-        if (sort) {
-            queryOptions.order = [sort.split(',')];  // e.g. "price,DESC"
-        }
-
-        // Add pagination if specified
-        if (limit) {
-            queryOptions.limit = parseInt(limit);
-        }
-        if (offset) {
-            queryOptions.offset = parseInt(offset);
-        }
-
-        return await Product.findAll(queryOptions);
-    }
-
     static async getProductsByCategories(categoryIdsStr, options = {}) {
-        // Get categories from query parameter: ?categories=1,2,3
         const categoryIds = categoryIdsStr
-        ? categoryIdsStr.split(',').map(id => parseInt(id))
-        : [];
-
+            ? categoryIdsStr.split(',').map(id => parseInt(id))
+            : [];
+    
         if (!categoryIds.length) {
             throw new Error('Categories parameter is required');
         }
-
+    
         const { sort, limit, offset } = options;
         
         const queryOptions = {
@@ -81,12 +56,12 @@ class ProductService {
             },
             include: Category,
         };
-
+    
         // Add sorting if specified
         if (sort) {
             queryOptions.order = [sort.split(',')];
         }
-
+    
         // Add pagination if specified
         if (limit) {
             queryOptions.limit = parseInt(limit);
@@ -94,7 +69,31 @@ class ProductService {
         if (offset) {
             queryOptions.offset = parseInt(offset);
         }
-
+    
+        return await Product.findAll(queryOptions);
+    }
+    
+    static async getProductsByCategory(categoryId, options = {}) {
+        const { sort, limit, offset } = options;
+        
+        const queryOptions = {
+            where: { categoryId },
+            include: Category,
+        };
+    
+        // Add sorting if specified
+        if (sort) {
+            queryOptions.order = [sort.split(',')];
+        }
+    
+        // Add pagination if specified
+        if (limit) {
+            queryOptions.limit = parseInt(limit);
+        }
+        if (offset) {
+            queryOptions.offset = parseInt(offset);
+        }
+    
         return await Product.findAll(queryOptions);
     }
 }
