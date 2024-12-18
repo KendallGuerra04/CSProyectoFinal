@@ -156,6 +156,8 @@ describe('ProductService', () => {
         });
     });
 
+
+
     describe('getProductsByCategory', () => {//CATEGORY
         it('should throw an error if the category parameter is empty', async () => {
             const emptyCategory = '';
@@ -315,5 +317,19 @@ describe('ProductService', () => {
     
             expect(result).toEqual(expected);
         });
+
+        //VIENDO SI RESUELVO EL 96%
+        
+        it('should throw an error if category IDs are invalid', async () => {
+            await expect(
+                ProductService.getProductsByCategories('abc,123', {})
+            ).rejects.toThrow('Categories parameter is required');
+        
+            expect(Product.findAll).not.toHaveBeenCalled();
+        });
+        
+        
+
+
     });
 });

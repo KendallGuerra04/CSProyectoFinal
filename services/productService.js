@@ -42,9 +42,9 @@ class ProductService {
             ? categoryIdsStr.split(',').map(id => parseInt(id))
             : [];
     
-        if (!categoryIds.length) {
-            throw new Error('Categories parameter is required');
-        }
+            if (!categoryIds.length || categoryIds.some(id => isNaN(id))) {
+                throw new Error('Categories parameter is required');
+            }
     
         const { sort, limit, offset } = options;
         
