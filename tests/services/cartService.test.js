@@ -60,19 +60,19 @@ describe('CartService', () => {
       // Mock de un producto con inventario insuficiente
       const mockProduct = { id: 1, inventory: 5 };
       Product.findByPk.mockResolvedValue(mockProduct);
-      
+
       // Simulando un cartItem que intenta agregar una cantidad mayor que la disponibilidad del inventario
       const mockCartItem = { id: 1, cartId: 1, productId: 1, quantity: 6 };
       CartItem.findOne.mockResolvedValue(mockCartItem);
-    
+
       // Intentando añadir el item al carrito
       await expect(CartService.addItemToCart(1, 1, 6)).rejects.toThrow('Not enough inventory available');
-      
+
       // Verificando que la condición de falta de inventario dispara el error
-    //const product = await Product.findByPk(1);
-    //const cartItem = await CartItem.findOne({ where: { productId: 1 } });
-    
-    //expect(product.inventory).toBeLessThan(cartItem.quantity);
+      //const product = await Product.findByPk(1);
+      //const cartItem = await CartItem.findOne({ where: { productId: 1 } });
+
+      //expect(product.inventory).toBeLessThan(cartItem.quantity);
     });
 
     it('should create a new item in the cart if it does not already exist', async () => {
@@ -91,15 +91,15 @@ describe('CartService', () => {
       const mockProduct = { id: 1, inventory: 10 };
       const mockCartItem = { id: 1, quantity: 2, save: jest.fn() }; // Agregamos el mock de save
       const newQuantity = 5;
-    
+
       Product.findByPk.mockResolvedValue(mockProduct);
       CartItem.findOne.mockResolvedValue(mockCartItem);
-    
+
       // Configuramos el comportamiento de mockCartItem.save
       mockCartItem.save.mockResolvedValue({ ...mockCartItem, quantity: newQuantity });
-    
+
       const result = await CartService.addItemToCart(1, 1, 3);
-    
+
       expect(result.quantity).toBe(newQuantity); // Verificamos que se actualizó correctamente
       expect(mockCartItem.save).toHaveBeenCalled(); // Verificamos que se llamó a save
     });
@@ -116,20 +116,30 @@ describe('CartService', () => {
     it('should handle errors when updating the existing cart item fails', async () => {
       const mockProduct = { id: 1, inventory: 10 };
       const mockCartItem = { id: 1, quantity: 2, save: jest.fn() }; // Añadimos el mock de save
-    
+
       Product.findByPk.mockResolvedValue(mockProduct);
       CartItem.findOne.mockResolvedValue(mockCartItem);
-    
+
       // Configuramos el mock para simular un error al intentar guardar
       mockCartItem.save.mockRejectedValue(new Error('Database error'));
-    
+
       await expect(CartService.addItemToCart(1, 1, 3)).rejects.toThrow('Database error');
-    
+
       // Verificamos que save fue llamado incluso si falló
       expect(mockCartItem.save).toHaveBeenCalled();
     });
+  });
 
-    it('should return cart items with calculated totals', async () => {
+  describe('getCartItems', () => {
+    it('should throw an error if the cart is not found', async () => {
+      // Simulate Cart.findByPk returning null
+      Cart.findByPk.mockResolvedValue(null);
+
+      await expect(CartService.getCartItems(1)).rejects.toThrow('Item not found');
+    });
+
+    it('should return cart items with calculated totals when items exist', async () => {
+      const mockCart = { id: 1 };
       const mockCartItems = [
         {
           id: 1,
@@ -139,7 +149,7 @@ describe('CartService', () => {
             id: 1,
             quantity: 2,
             Product: { id: 1, price: 10, taxRate: 0.1 }
-          })
+          }),
         },
         {
           id: 2,
@@ -149,38 +159,39 @@ describe('CartService', () => {
             id: 2,
             quantity: 1,
             Product: { id: 2, price: 20, taxRate: 0.2 }
-          })
-        }
+          }),
+        },
       ];
-    
+
+      // Mock the Cart and CartItem responses
+      Cart.findByPk.mockResolvedValue(mockCart);
       CartItem.findAll.mockResolvedValue(mockCartItems);
-    
+
       const result = await CartService.getCartItems(1);
-    
-      expect(result).toEqual({
-        items: [
-          {
-            id: 1,
-            quantity: 2,
-            Product: { id: 1, price: 10, taxRate: 0.1 },
-            itemSubtotal: 20,
-            itemTax: 2
-          },
-          {
-            id: 2,
-            quantity: 1,
-            Product: { id: 2, price: 20, taxRate: 0.2 },
-            itemSubtotal: 20,
-            itemTax: 4
-          }
-        ],
-        summary: {
-          subtotal: 40, // 20 + 20
-          totalTax: 6,   // 2 + 4
-          total: 46      // 40 + 6
-        }
+
+      expect(result.items).toEqual([
+        {
+          id: 1,
+          quantity: 2,
+          Product: { id: 1, price: 10, taxRate: 0.1 },
+          itemSubtotal: 20, // 2 * 10
+          itemTax: 2,      // 20 * 0.1
+        },
+        {
+          id: 2,
+          quantity: 1,
+          Product: { id: 2, price: 20, taxRate: 0.2 },
+          itemSubtotal: 20, // 1 * 20
+          itemTax: 4,      // 20 * 0.2
+        },
+      ]);
+
+      expect(result.summary).toEqual({
+        subtotal: 40, // 20 + 20
+        totalTax: 6,  // 2 + 4
+        total: 46,    // 40 + 6
       });
-    }); 
+    });
   });
 
   describe('updateCartItem', () => {
@@ -199,13 +210,13 @@ describe('CartService', () => {
           Product: { id: 1, inventory: 10 }
         })
       };
-  
+
       // Mock de CartItem.findByPk para devolver el cartItem mockeado
       CartItem.findByPk.mockResolvedValue(mockCartItem);
-  
+
       // Llamada a la función de servicio para actualizar el cartItem
       const result = await CartService.updateCartItem(1, 5);
-  
+
       // Verificamos que el resultado coincida con el cartItem actualizado
       expect(result.quantity).toBe(5);
       expect(mockCartItem.save).toHaveBeenCalled(); // Verifica que se haya llamado save
@@ -257,7 +268,7 @@ describe('CartService', () => {
       const result = await CartService.removeCartItem(1);
 
       expect(result).toBeUndefined(); // Asegurar que no devuelve nada
-  });
+    });
 
     it('should throw an error if item is not found', async () => {
       CartItem.findByPk.mockResolvedValue(null);
@@ -271,6 +282,6 @@ describe('CartService', () => {
 
       // Verificar que removeCartItem lanza el error esperado
       await expect(CartService.removeCartItem(1)).rejects.toThrow('Database error');
-  });
+    });
   });
 });

@@ -17,7 +17,7 @@ class ProductService {
         if (!category) {
             throw new Error(`Category with id ${product.categoryId} does not exist`);
         }
-        
+
         return await Product.create(product);
     }
 
@@ -38,16 +38,16 @@ class ProductService {
     }
 
     static async getProductsByCategories(categoryIdsStr, options = {}) {
-        const categoryIds = categoryIdsStr
+        const categoryIds = (categoryIdsStr)
             ? categoryIdsStr.split(',').map(id => parseInt(id))
             : [];
-    
-            if (!categoryIds.length || categoryIds.some(id => isNaN(id))) {
-                throw new Error('Categories parameter is required');
-            }
-    
+
+        if (!categoryIds.length || categoryIds.some(id => isNaN(id))) {
+            throw new Error('Categories parameter is required');
+        }
+
         const { sort, limit, offset } = options;
-        
+
         const queryOptions = {
             where: {
                 categoryId: {
@@ -56,12 +56,12 @@ class ProductService {
             },
             include: Category,
         };
-    
+
         // Add sorting if specified
         if (sort) {
             queryOptions.order = [sort.split(',')];
         }
-    
+
         // Add pagination if specified
         if (limit) {
             queryOptions.limit = parseInt(limit);
@@ -69,23 +69,23 @@ class ProductService {
         if (offset) {
             queryOptions.offset = parseInt(offset);
         }
-    
+
         return await Product.findAll(queryOptions);
     }
-    
+
     static async getProductsByCategory(categoryId, options = {}) {
         const { sort, limit, offset } = options;
-        
+
         const queryOptions = {
             where: { categoryId },
             include: Category,
         };
-    
+
         // Add sorting if specified
         if (sort) {
             queryOptions.order = [sort.split(',')];
         }
-    
+
         // Add pagination if specified
         if (limit) {
             queryOptions.limit = parseInt(limit);
@@ -93,7 +93,7 @@ class ProductService {
         if (offset) {
             queryOptions.offset = parseInt(offset);
         }
-    
+
         return await Product.findAll(queryOptions);
     }
 }

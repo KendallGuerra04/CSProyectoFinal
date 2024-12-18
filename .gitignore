@@ -20,3 +20,4 @@ Thumbs.db
 
 # Ignorar archivos de bloqueo de npm
 package-lock.json
+.stryker-tmp
